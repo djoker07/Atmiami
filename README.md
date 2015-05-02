@@ -9,11 +9,11 @@ we will be using:
 - .club domains
 
 hardware:
--Raspberri Pi
--Arduino
--Servos
--Web cam
--LEDs
+- Raspberri Pi
+- Arduino
+- Servos
+- Web cam
+- LEDs
 
 
 
