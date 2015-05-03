@@ -1,0 +1,189 @@
+<?php
+session_start();
+if (!isset($_SESSION['authenticated'])) {
+  header('Location: redirectToUserLogin.html');
+  exit;
+}
+else
+{
+$roomid = $_SESSION['authenticated'];
+include 'Connections/dataBaseConnection.php';
+
+$query = "SELECT FirstName FROM `Rooms` WHERE `RoomID` = '".$roomid."'";
+$firstname = $conn->query($query)->fetch_object()->FirstName;
+$query = "SELECT LastName FROM `Rooms` WHERE `RoomID` = '".$roomid."'";
+$lastname = $conn->query($query)->fetch_object()->LastName;
+
+}
+?>
+
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta http-equiv=’cache-control’ content=’no-cache’>
+<meta http-equiv=’expires’ content=’0′>
+<meta http-equiv=’pragma’ content=’no-cache’>
+<meta http-equiv="Cache-Control: no-cache, must-revalidate">
+<link rel="stylesheet" href="stylesheet.css">
+<script type="text/javascript" >
+var streamactive = 0;
+var picstream
+var delay = 1000;
+var d;
+var t;
+
+function statusChangeCallback(response) {
+    console.log('statusChangeCallback');
+    console.log(response);
+    // The response object is returned with a status field that lets the
+    // app know the current login status of the person.
+    // Full docs on the response object can be found in the documentation
+    // for FB.getLoginStatus().
+    if (response.status === 'connected') {
+      // Logged into your app and Facebook.
+      testAPI();
+    } else if (response.status === 'not_authorized') {
+      // The person is logged into Facebook, but not your app.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into this app.';
+    } else {
+      // The person is not logged into Facebook, so we're not sure if
+      // they are logged into this app or not.
+      document.getElementById('status').innerHTML = 'Please log ' +
+        'into Facebook.';
+    }
+  }
+
+  // This function is called when someone finishes with the Login
+  // Button.  See the onlogin handler attached to it in the sample
+  // code below.
+  function checkLoginState() {
+    FB.getLoginStatus(function(response) {
+      statusChangeCallback(response, {scope:'email, user_likes'});
+	  
+    });
+  }
+  
+   // Load the SDK asynchronously
+  (function(d, s, id) {
+    var js, fjs = d.getElementsByTagName(s)[0];
+    if (d.getElementById(id)) return;
+    js = d.createElement(s); js.id = id;
+    js.src = "//connect.facebook.net/en_US/sdk.js";
+    fjs.parentNode.insertBefore(js, fjs);
+  }(document, 'script', 'facebook-jssdk'));
+  
+  
+window.fbAsyncInit = function() {
+  FB.init({
+    appId      : '1004826099568914',
+    cookie     : true,  // enable cookies to allow the server to access 
+                        // the session
+    xfbml      : true,  // parse social plugins on this page
+    version    : 'v2.3' // use version 2.2
+  });
+  
+function sharepic(){
+	checkLoginState()
+	/*FB.login(function(){
+ FB.api('/me/feed', 'post', {message: 'Hello, world!'});
+}, {scope: 'publish_actions'});*/
+
+}
+function switchCameraState(){
+var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+  		xmlhttp=new XMLHttpRequest();
+  	}
+	else{// code for IE6, IE5
+ 	 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+ 	 }
+	xmlhttp.open("GET","http://emergeeng.co.nf/controlRequest.php?id=1&command=Camera",true);
+	xmlhttp.send();
+}
+
+function lightsOnOff(){
+var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+  		xmlhttp=new XMLHttpRequest();
+  	}
+	else{// code for IE6, IE5
+ 	 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+ 	 }
+	xmlhttp.open("GET","http://emergeeng.co.nf/controlRequest.php?id=1&command=Light",true);
+	xmlhttp.send();
+}
+
+function lockOnOff(){
+var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+  		xmlhttp=new XMLHttpRequest();
+  	}
+	else{// code for IE6, IE5
+ 	 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+ 	 }
+	xmlhttp.open("GET","http://emergeeng.co.nf/controlRequest.php?id=1&command=Lock",true);
+	xmlhttp.send();
+}
+
+function moveMotor(){
+var xmlhttp;
+	if (window.XMLHttpRequest){// code for IE7+, Firefox, Chrome, Opera, Safari
+  		xmlhttp=new XMLHttpRequest();
+  	}
+	else{// code for IE6, IE5
+ 	 xmlhttp=new ActiveXObject("Microsoft.XMLHTTP");
+ 	 }
+	xmlhttp.open("GET","http://emergeeng.co.nf/controlRequest.php?id=1&command=Motor",true);
+	xmlhttp.send();
+}
+
+function picturestream(){
+	d = new Date();
+	t = d.getTime();
+	document.getElementById('birdimage').src = "stream/pic.jpg?" + t;
+}
+
+function streamcontrol(){
+	if(streamactive == 0){
+		switchCameraState();
+		streamactive = 1;
+		picstream = setInterval("picturestream()",delay);
+		//document.getElementById("frame").innerHTML = "on";	
+	}
+	else{
+		streamactive = 0;
+		clearTimeout(picstream);
+		imageindex = 1;
+		//document.getElementById("frame").innerHTML = "off";
+		document.getElementById('birdimage').src = "images/cameraOffline.jpg?" + t;
+		switchCameraState();
+	}
+}
+</script>
+</head>
+
+<body>
+Welcome <?php echo "$firstname $lastname"; ?>
+<hr class="linebrakeone"/>
+<div id="block1">
+<center>
+<br>
+<img src="images/cameraOffline.jpg" alt="N/A" name="birdimage" width="320px" height="240px" border="0px" id="birdimage"/>
+<p id="frame">&nbsp;</p>
+<input type="button"  value="start/stop" onclick="streamcontrol()"style="height:40px; width:200px;"></input>
+
+<hr class="linebrakeone"/>
+
+<input type="button"  value="Lights On/Off" onclick="lightsOnOff()" style="height:40px; width:200px;"></input>
+<input type="button"  value="Lock On/Off" onclick="lockOnOff()" style="height:40px; width:200px;"></input>
+<br>
+<br>
+<input type="button"  value="share" onclick="sharepic()" style="height:40px; width:200px;"></input>
+</center>
+
+</div>
+</body>
+</html>
+
